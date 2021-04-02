@@ -1,0 +1,231 @@
+#include <stdio.h>
+#include<stdlib.h>
+
+int count=0;
+typedef struct node {
+    int data;
+    struct node *left;
+    struct node *right;
+    int height;
+}Node;
+
+
+Node *createnode(int data){
+    Node* temp = (Node*)malloc(sizeof(Node));
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+int height (Node *root) {
+    
+    if(root == NULL)
+        return 0;
+    
+    int lh =1+ height(root->left);
+    int rh =1+ height(root->right);
+    
+    if(lh > rh)
+        return lh;
+    else
+        return rh;
+}
+
+int getBalance(Node *root){
+    if(root == NULL)
+        return 0;
+    
+    return height(root->left) - height(root->right);
+}
+
+Node *leftRotate(Node *root){
+    Node *temp = root->right;
+    root->right = temp->left;
+    temp->left = root;
+    return temp;
+}
+
+Node *rightRotate(Node *root){
+    Node *temp = root->left;
+    root->left = temp->right;
+    temp->right = root;
+    return temp;
+}
+
+Node *insert(Node *root, int data){
+    
+    //base condition
+    if(root == NULL){
+        Node* temp = createnode(data);
+        root = temp;
+        return root;
+    }
+    //body
+    else if(data > root->data)
+        root->right=insert(root->right,data);//input change
+    
+    else
+        root->left=insert(root->left,data);//input change
+    
+    root->height = height(root);
+    
+    int balance = getBalance(root);
+    
+    //L-L case
+    if(balance > 1 && getBalance(root->left) >=0 )
+        return rightRotate(root);
+    
+    //R-R case
+    if(balance < -1 && getBalance(root->right)<=0 )
+        return leftRotate(root);
+    
+    //L-R case
+    if(balance > 1 && getBalance(root->left)<0 ){
+        
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+    
+    //R-L case
+    if(balance <-1 && getBalance(root->right) > 0){
+        
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+    
+    return root;
+}
+//inorder
+Node *find(Node *root, int val)
+{	
+    if(root==NULL)
+		return root;
+		
+	else if (root->data==val)
+		return root;
+		
+	else if(val>root->data)
+		return find(root->right,val);
+	else 
+		return find(root->left,val);
+}
+void display(Node *root){
+    //base condition
+    if(root == NULL)
+        return;
+    //body
+    
+    display(root->left);
+    printf("%d ",root->data);
+    display(root->right);
+    
+    
+}
+
+Node *max(Node *root){
+	if (root==NULL)
+		return root;
+	else if(root->right==NULL)
+		return root;
+	else 
+		return max(root->right);
+}
+
+Node *minimum(Node *root){
+	if (root==NULL)
+		return root;
+	else if(root->left==NULL)
+		return root;
+	else 
+		return minimum(root->left);
+}
+//Inorder = Left root Right
+//pre order= root left right
+//post order= left right root
+Node *deletenode (Node *root , int data) {
+    
+    if(root == NULL)
+        return root;
+        
+    else if(data > root->data) 
+        root->right = deletenode(root->right, data);
+    
+    else if (data < root->data) 
+        root->left = deletenode(root->left, data);
+        
+    else {//when data == root->data
+        //if only right child is present
+        if(root->left == NULL) {
+            Node *temp = root->right;
+            free(root);
+            return temp;
+        }
+        //if only left child is present
+        else if(root->right == NULL) {
+            Node *temp = root->left;
+            free(root);
+            return temp;
+        }
+        //if both child present
+        
+            
+            Node *temp = minimum(root->right);
+            root->data = temp->data;
+            root->right= deletenode(root->right,temp->data);
+        
+    }
+    return root;
+    
+}
+
+void counter(Node *root){
+	
+	if(root == NULL)
+	    return;
+	
+	if(root->left == NULL && root->right == NULL)
+	    count++;
+	
+	if(root->left)
+	    counter(root->left);
+	
+	if(root->right)
+	    counter(root->right);
+	
+	/*
+	if ((root->left==NULL)&&(root->right==NULL))
+		 count++;
+			
+	else if ((root->left!=NULL)||(root->right!=NULL))
+		count=count++;
+		*/ 
+	
+		
+}
+
+int main() {
+    
+    Node *root = NULL;
+    
+    root = insert(root,10);
+    root = insert(root,20);
+    root = insert(root,30);
+    root = insert(root,40);
+    root = insert(root,50);
+    root = insert(root,25);
+    
+    display(root);
+    /*
+    Node *search= find(root,5);
+    printf("%d",search->data);
+    */
+    // Node *maxed=max(root);
+    // printf("%d ",maxed->data);
+    // Node *mined=minimum(root);
+    // printf("%d ",mined->data);
+    // counter(root);
+    // printf("%d",count);
+    
+    
+    return 0;
+}
