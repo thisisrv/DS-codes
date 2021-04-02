@@ -174,6 +174,37 @@ Node *deletenode (Node *root , int data) {
             root->right= deletenode(root->right,temp->data);
         
     }
+    //if tree had only 1 child
+    if(root == NULL)
+        return root;
+        
+    root->height = height(root);
+    
+    int balance = getBalance(root);
+    
+    //Cases
+    //L-L case
+    if(balance > 1 && getBalance(root->left) >=0 )
+        return rightRotate(root);
+    
+    //R-R case
+    if(balance < -1 && getBalance(root->right)<=0 )
+        return leftRotate(root);
+    
+    //L-R case
+    if(balance > 1 && getBalance(root->left)<0 ){
+        
+        root->left = leftRotate(root->left);
+        return rightRotate(root);
+    }
+    
+    //R-L case
+    if(balance <-1 && getBalance(root->right) > 0){
+        
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+    
     return root;
     
 }
